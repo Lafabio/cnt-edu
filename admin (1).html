@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Notícias CNT.edu</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --azul: #0047B6;
+  --azul2: #1a6eff;
+  --verde: #00c471;
+  --amarelo: #F2B817;
+  --bg: #060810;
+  --surface: #0d1017;
+  --card: #131620;
+  --border: rgba(255,255,255,0.07);
+  --text: #e8eaf0;
+  --muted: #6b7280;
+  --radius: 14px;
+  --danger: #f43f5e;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: 'Space Grotesk', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+/* ===== LOGIN ADMIN ===== */
+#adminLogin {
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(0,71,182,0.25) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 30%, rgba(0,196,113,0.1) 0%, transparent 50%),
+    var(--bg);
+  padding: 20px;
+}
+.login-box {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 48px 40px;
+  width: 100%; max-width: 420px;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.6);
+}
+.login-logo {
+  text-align: center; margin-bottom: 32px;
+}
+.login-logo .emoji { font-size: 48px; display: block; margin-bottom: 12px; }
+.login-logo h2 { font-family: 'Sora', sans-serif; font-size: 22px; font-weight: 800; }
+.login-logo p { font-size: 13px; color: var(--muted); margin-top: 6px; }
+.field { margin-bottom: 18px; }
+.field label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 8px; }
+.field input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 14px;
+  padding: 12px 14px; border-radius: 10px;
+  transition: border-color .2s;
+}
+.field input:focus { outline: none; border-color: var(--azul); }
+.btn-login {
+  width: 100%;
+  background: linear-gradient(135deg, var(--azul), var(--azul2));
+  color: #fff; border: none;
+  font-family: 'Sora', sans-serif;
+  font-size: 15px; font-weight: 700;
+  padding: 14px; border-radius: 10px;
+  cursor: pointer; transition: all .2s; margin-top: 8px;
+  box-shadow: 0 4px 20px rgba(0,71,182,0.4);
+}
+.btn-login:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,71,182,0.6); }
+.login-hint { text-align: center; margin-top: 16px; font-size: 12px; color: var(--muted); }
+.login-hint code {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 2px 8px; border-radius: 4px;
+  font-family: monospace; color: var(--amarelo);
+}
+
+/* ===== APP ADMIN ===== */
+#adminApp { display: none; min-height: 100vh; flex-direction: column; }
+#adminApp.visible { display: flex; }
+
+.topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 32px; height: 64px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
+}
+.topbar-brand {
+  display: flex; align-items: center; gap: 12px;
+  font-family: 'Sora', sans-serif; font-size: 18px; font-weight: 800;
+}
+.topbar-actions { display: flex; gap: 10px; align-items: center; }
+.welcome { font-size: 13px; color: var(--muted); }
+
+.btn-sm {
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 12px; font-weight: 600;
+  padding: 8px 16px; border-radius: 8px;
+  cursor: pointer; transition: all .2s;
+}
+.btn-sm:hover { background: rgba(255,255,255,0.07); }
+.btn-sm.danger:hover { background: var(--danger); border-color: var(--danger); color: #fff; }
+.btn-primary {
+  background: linear-gradient(135deg, var(--azul), var(--azul2));
+  color: #fff; border: none;
+  font-family: 'Sora', sans-serif;
+  font-size: 13px; font-weight: 700;
+  padding: 10px 20px; border-radius: 10px;
+  cursor: pointer; transition: all .2s;
+  box-shadow: 0 4px 16px rgba(0,71,182,0.4);
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,71,182,0.6); }
+.btn-success {
+  background: linear-gradient(135deg, #1b7a3e, #00c471);
+  color: #fff; border: none;
+  font-family: 'Sora', sans-serif;
+  font-size: 13px; font-weight: 700;
+  padding: 10px 20px; border-radius: 10px;
+  cursor: pointer; transition: all .2s;
+}
+.btn-success:hover { transform: translateY(-2px); }
+
+.main { flex: 1; padding: 32px; max-width: 1200px; margin: 0 auto; width: 100%; }
+
+/* ===== HEADER ===== */
+.page-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  margin-bottom: 32px; flex-wrap: wrap; gap: 16px;
+}
+.page-header h1 { font-family: 'Sora', sans-serif; font-size: 28px; font-weight: 800; }
+.page-header p { font-size: 14px; color: var(--muted); margin-top: 6px; }
+
+/* ===== FORM ===== */
+.news-form {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 32px;
+  margin-bottom: 32px;
+  position: relative;
+  overflow: hidden;
+}
+.news-form::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--azul), var(--verde), var(--amarelo));
+}
+.form-title {
+  font-family: 'Sora', sans-serif; font-size: 18px; font-weight: 700;
+  margin-bottom: 24px; display: flex; align-items: center; gap: 10px;
+}
+.form-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 18px;
+}
+.form-group { display: flex; flex-direction: column; gap: 8px; }
+.form-group.full { grid-column: 1 / -1; }
+.form-group label {
+  font-size: 12px; font-weight: 600; color: var(--muted);
+  text-transform: uppercase; letter-spacing: .05em;
+}
+.form-group input,
+.form-group select,
+.form-group textarea {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 14px;
+  padding: 12px 14px; border-radius: 10px;
+  transition: border-color .2s;
+}
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus { outline: none; border-color: var(--azul); }
+.form-group textarea { resize: vertical; min-height: 120px; }
+.form-group select option { background: var(--card); }
+.emoji-picker {
+  display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px;
+}
+.emoji-btn {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; padding: 8px 12px;
+  font-size: 20px; cursor: pointer; transition: all .2s;
+}
+.emoji-btn:hover, .emoji-btn.selected {
+  background: rgba(0,71,182,0.2); border-color: var(--azul);
+  transform: scale(1.1);
+}
+
+/* ===== UPLOAD DE IMAGEM ===== */
+.img-upload-area {
+  border: 2px dashed var(--border);
+  border-radius: 12px;
+  padding: 28px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all .25s;
+  position: relative;
+  background: var(--surface);
+}
+.img-upload-area:hover { border-color: var(--azul); background: rgba(0,71,182,0.05); }
+.img-upload-area.drag-over { border-color: var(--verde); background: rgba(0,196,113,0.07); }
+.img-upload-area input[type=file] {
+  position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+}
+.img-upload-icon { font-size: 36px; margin-bottom: 8px; display: block; }
+.img-upload-label { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+.img-upload-hint { font-size: 12px; color: var(--muted); }
+.img-preview-wrap {
+  margin-top: 14px; position: relative; display: inline-block;
+  border-radius: 10px; overflow: hidden;
+  border: 1px solid var(--border);
+}
+.img-preview-wrap img {
+  display: block; max-height: 200px; max-width: 100%;
+  object-fit: cover; border-radius: 10px;
+}
+.img-remove-btn {
+  position: absolute; top: 8px; right: 8px;
+  background: rgba(0,0,0,0.7); border: none; color: #fff;
+  width: 28px; height: 28px; border-radius: 50%;
+  cursor: pointer; font-size: 14px;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .2s;
+}
+.img-remove-btn:hover { background: var(--danger); }
+
+.form-actions {
+  display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px;
+  padding-top: 24px; border-top: 1px solid var(--border);
+}
+
+/* ===== LISTA DE NOTÍCIAS ===== */
+.section-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 16px;
+}
+.section-head h2 { font-family: 'Sora', sans-serif; font-size: 20px; font-weight: 700; }
+.badge-count {
+  background: rgba(0,71,182,0.2); color: #6ea4ff;
+  font-size: 12px; font-weight: 700;
+  padding: 3px 10px; border-radius: 20px;
+}
+
+.news-list { display: flex; flex-direction: column; gap: 12px; }
+
+.news-item {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px 24px;
+  display: flex; align-items: flex-start; gap: 16px;
+  transition: all .2s;
+}
+.news-item:hover { border-color: rgba(255,255,255,0.12); box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+.news-item.destaque { border-left: 3px solid var(--amarelo); }
+
+.news-item-emoji {
+  font-size: 36px; flex-shrink: 0;
+  width: 56px; height: 56px;
+  background: var(--surface);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+}
+.news-item-body { flex: 1; min-width: 0; }
+.news-item-meta {
+  display: flex; align-items: center; gap: 10px;
+  flex-wrap: wrap; margin-bottom: 6px;
+}
+.news-item-cat {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.07em;
+  padding: 3px 10px; border-radius: 6px;
+}
+.cat-ciencia { background: rgba(0,196,113,0.15); color: #00c471; }
+.cat-tecnologia { background: rgba(0,71,182,0.15); color: #6ea4ff; }
+.cat-educacao { background: rgba(242,184,23,0.15); color: var(--amarelo); }
+.cat-pesquisa { background: rgba(124,58,237,0.15); color: #c084fc; }
+.news-item-date { font-size: 12px; color: var(--muted); }
+.news-destaque-tag {
+  background: rgba(242,184,23,0.15); color: var(--amarelo);
+  font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 6px;
+}
+.news-item-title {
+  font-family: 'Sora', sans-serif; font-size: 16px; font-weight: 700;
+  margin-bottom: 4px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.news-item-excerpt { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+.news-item-actions { display: flex; gap: 8px; flex-shrink: 0; align-items: flex-start; }
+
+/* ===== ARQUIVO ===== */
+.arquivo-section {
+  margin-top: 32px;
+}
+.arquivo-toggle {
+  background: var(--card); border: 1px solid var(--border);
+  color: var(--text); font-family: 'Sora', sans-serif;
+  font-size: 14px; font-weight: 600;
+  padding: 12px 20px; border-radius: 10px; width: 100%;
+  cursor: pointer; text-align: left; transition: all .2s;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.arquivo-toggle:hover { background: rgba(255,255,255,0.04); }
+
+.arquivo-list {
+  display: flex; flex-direction: column; gap: 8px;
+  margin-top: 12px;
+}
+.arquivo-item {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 14px 18px;
+  display: flex; align-items: center; gap: 12px;
+  opacity: 0.65;
+}
+.arquivo-item:hover { opacity: 1; }
+
+/* ===== TOAST ===== */
+.toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 12px; padding: 14px 24px;
+  font-size: 14px; font-weight: 600;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+  z-index: 9999; transition: transform .3s ease;
+  display: flex; align-items: center; gap: 10px;
+  min-width: 280px; max-width: 400px;
+}
+.toast.visible { transform: translateX(-50%) translateY(0); }
+.toast.success { border-color: rgba(0,196,113,0.4); }
+.toast.error { border-color: rgba(244,63,94,0.4); }
+
+/* ===== INSTRUÇÕES ===== */
+.instrucoes {
+  background: rgba(242,184,23,0.06);
+  border: 1px solid rgba(242,184,23,0.2);
+  border-radius: 14px; padding: 20px 24px; margin-bottom: 32px;
+}
+.instrucoes h3 { font-size: 15px; font-weight: 700; color: var(--amarelo); margin-bottom: 10px; }
+.instrucoes p { font-size: 13px; color: var(--muted); line-height: 1.7; margin-bottom: 6px; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 700px) {
+  .form-grid { grid-template-columns: 1fr; }
+  .main { padding: 20px; }
+  .topbar { padding: 0 16px; }
+  .news-item { flex-direction: column; }
+  .news-item-title { white-space: normal; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== LOGIN ===== -->
+<div id="adminLogin">
+  <div class="login-box">
+    <div class="login-logo">
+      <span class="emoji">⚙️</span>
+      <h2>Área Administrativa</h2>
+      <p>CNT.edu — Gerenciar Notícias</p>
+    </div>
+    <div class="field">
+      <label>Usuário</label>
+      <input type="text" id="loginUser" placeholder="admin" autocomplete="username">
+    </div>
+    <div class="field">
+      <label>Senha</label>
+      <input type="password" id="loginPass" placeholder="••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')entrar()">
+    </div>
+    <button class="btn-login" onclick="entrar()">🔐 Entrar</button>
+    <div class="login-hint">
+      Padrão: usuário <code>admin</code> · senha <code>cnt2025</code><br>
+      <small style="font-size:11px;margin-top:4px;display:block">Altere a senha após o primeiro acesso nas configurações.</small>
+    </div>
+  </div>
+</div>
+
+<!-- ===== APP ADMIN ===== -->
+<div id="adminApp">
+
+  <div class="topbar">
+    <div class="topbar-brand">
+      <span>⚙️</span>
+      <span>Admin <span style="color:var(--verde)">CNT.edu</span></span>
+    </div>
+    <div class="topbar-actions">
+      <a href="portal.html" class="btn-sm" style="text-decoration:none">🌐 Ver Site</a>
+      <button class="btn-sm" onclick="alterarSenha()">🔑 Alterar Senha</button>
+      <button class="btn-sm danger" onclick="sair()">Sair</button>
+    </div>
+  </div>
+
+  <div class="main">
+
+    <!-- INSTRUÇÕES -->
+    <div class="instrucoes">
+      <h3>💡 Como usar esta área</h3>
+      <p>• <strong>Adicionar notícia:</strong> Preencha o formulário abaixo e clique em "Publicar Notícia".</p>
+      <p>• <strong>A primeira notícia da lista</strong> aparece como destaque na capa do site.</p>
+      <p>• <strong>Notícias excluídas</strong> vão para o arquivo histórico — não são apagadas permanentemente.</p>
+      <p>• Alterações são salvas automaticamente. Para ver no site, basta ir à página pública.</p>
+    </div>
+
+    <!-- HEADER -->
+    <div class="page-header">
+      <div>
+        <h1>📰 Gerenciar Notícias</h1>
+        <p>Adicione, edite ou arquive notícias científicas para a capa do site.</p>
+      </div>
+      <button class="btn-primary" onclick="scrollToForm()">+ Nova Notícia</button>
+    </div>
+
+    <!-- ===== LISTA DE NOTÍCIAS ATIVAS ===== -->
+    <div class="section-head">
+      <h2>Notícias Ativas <span class="badge-count" id="badgeCount">0</span></h2>
+      <small style="color:var(--muted);font-size:12px">A 1ª notícia é o destaque da capa</small>
+    </div>
+    <div class="news-list" id="newsList"></div>
+
+    <!-- ===== FORMULÁRIO ===== -->
+    <div class="news-form" id="newsForm" style="margin-top:40px">
+      <div class="form-title">
+        <span id="formEmoji">✍️</span>
+        <span id="formTitleText">Adicionar Nova Notícia</span>
+      </div>
+
+      <input type="hidden" id="editId" value="">
+
+      <div class="form-grid">
+        <div class="form-group full">
+          <label>Título da notícia *</label>
+          <input type="text" id="fTitulo" placeholder="Ex: Cientistas descobrem nova espécie na Amazônia">
+        </div>
+        <div class="form-group full">
+          <label>Resumo (aparece na capa) *</label>
+          <input type="text" id="fResumo" placeholder="Uma frase curta que resume a notícia (máx. 160 caracteres)">
+        </div>
+        <div class="form-group full">
+          <label>Texto completo (aparece ao clicar na notícia)</label>
+          <textarea id="fConteudo" placeholder="Escreva o texto completo aqui. Use uma linha em branco para separar parágrafos."></textarea>
+        </div>
+        <div class="form-group">
+          <label>Categoria</label>
+          <select id="fCategoria">
+            <option value="Ciência">Ciência</option>
+            <option value="Biologia">Biologia</option>
+            <option value="Química">Química</option>
+            <option value="Física">Física</option>
+            <option value="Tecnologia">Tecnologia</option>
+            <option value="Pesquisa">Pesquisa</option>
+            <option value="Educação">Educação</option>
+            <option value="Meio Ambiente">Meio Ambiente</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Data de publicação *</label>
+          <input type="date" id="fData">
+        </div>
+        <div class="form-group">
+          <label>Autor / Fonte</label>
+          <input type="text" id="fAutor" placeholder="Ex: Equipe CNT.edu ou UFRJ / Agência FAPESP">
+        </div>
+        <div class="form-group">
+          <label>Link externo (opcional)</label>
+          <input type="url" id="fLink" placeholder="https://...">
+        </div>
+        <div class="form-group full">
+          <label>📸 Imagem da manchete (opcional)</label>
+          <div class="img-upload-area" id="imgUploadArea">
+            <input type="file" id="fImagem" accept="image/*" onchange="carregarImagem(this)">
+            <span class="img-upload-icon">🖼️</span>
+            <div class="img-upload-label">Clique ou arraste uma imagem aqui</div>
+            <div class="img-upload-hint">JPG, PNG ou WEBP · Recomendado: 1200×600px · Máximo 2MB</div>
+          </div>
+          <div id="imgPreviewWrap" style="display:none" class="img-preview-wrap">
+            <img id="imgPreview" src="" alt="Preview">
+            <button type="button" class="img-remove-btn" onclick="removerImagem()" title="Remover imagem">✕</button>
+          </div>
+          <input type="hidden" id="fImagemData" value="">
+        </div>
+        <div class="form-group full">
+          <label>Ícone / Emoji</label>
+          <div class="emoji-picker" id="emojiPicker">
+            <!-- preenchido por JS -->
+          </div>
+          <input type="hidden" id="fEmoji" value="🔬">
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn-sm" onclick="cancelarEdicao()">Cancelar</button>
+        <button class="btn-success" onclick="salvarNoticia()">
+          <span id="btnSalvarText">✅ Publicar Notícia</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ===== ARQUIVO ===== -->
+    <div class="arquivo-section">
+      <button class="arquivo-toggle" onclick="toggleArquivo()">
+        <span>🗃️ Arquivo Histórico de Notícias <span id="arquivoCount" style="color:var(--muted)"></span></span>
+        <span id="arquivoArrow">▼</span>
+      </button>
+      <div id="arquivoList" style="display:none">
+        <div class="arquivo-list" id="arquivoItems"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <span id="toastIcon"></span>
+  <span id="toastMsg"></span>
+</div>
+
+<script>
+// ============================================================
+// AUTENTICAÇÃO
+// ============================================================
+const ADMIN_KEY = 'cnt_admin_pass';
+let adminLogado = false;
+
+function getAdminPass() {
+  return localStorage.getItem(ADMIN_KEY) || 'cnt2025';
+}
+
+function entrar() {
+  const user = document.getElementById('loginUser').value.trim();
+  const pass = document.getElementById('loginPass').value;
+  if (user === 'admin' && pass === getAdminPass()) {
+    adminLogado = true;
+    document.getElementById('adminLogin').style.display = 'none';
+    document.getElementById('adminApp').classList.add('visible');
+    initAdmin();
+  } else {
+    mostrarToast('❌ Usuário ou senha incorretos', 'error');
+  }
+}
+
+function sair() {
+  if (!confirm('Deseja sair da área administrativa?')) return;
+  location.reload();
+}
+
+function alterarSenha() {
+  const atual = prompt('Senha atual:');
+  if (atual !== getAdminPass()) { alert('Senha incorreta!'); return; }
+  const nova = prompt('Nova senha (mínimo 6 caracteres):');
+  if (!nova || nova.length < 6) { alert('Senha inválida!'); return; }
+  const conf = prompt('Confirme a nova senha:');
+  if (nova !== conf) { alert('Senhas não coincidem!'); return; }
+  localStorage.setItem(ADMIN_KEY, nova);
+  mostrarToast('✅ Senha alterada com sucesso!', 'success');
+}
+
+// ============================================================
+// BANCO DE DADOS
+// ============================================================
+function getNews() {
+  try {
+    const raw = localStorage.getItem('cnt_news');
+    return raw ? JSON.parse(raw) : getDefaultNews();
+  } catch { return getDefaultNews(); }
+}
+
+function getArquivo() {
+  try {
+    const raw = localStorage.getItem('cnt_news_arquivo');
+    return raw ? JSON.parse(raw) : [];
+  } catch { return []; }
+}
+
+function saveNews(list) {
+  localStorage.setItem('cnt_news', JSON.stringify(list));
+}
+
+function saveArquivo(list) {
+  localStorage.setItem('cnt_news_arquivo', JSON.stringify(list));
+}
+
+function getDefaultNews() {
+  return [
+    {
+      id: 1,
+      titulo: "CRISPR-Cas9: nova técnica permite edição genética com precisão inédita",
+      resumo: "Pesquisadores da USP desenvolvem método que reduz erros na edição do DNA em até 90%, abrindo caminho para tratamentos de doenças genéticas raras.",
+      conteudo: "Uma equipe de pesquisadores da Universidade de São Paulo (USP) anunciou um avanço significativo na tecnologia CRISPR-Cas9. O novo método consegue reduzir as chamadas 'edições fora do alvo' em até 90%, tornando a técnica muito mais segura para aplicações terapêuticas.\n\nA ferramenta CRISPR permite cortar e editar sequências específicas do DNA com precisão sem precedentes. Com essa melhoria, os cientistas esperam acelerar o desenvolvimento de terapias gênicas para doenças como fibrose cística, anemia falciforme e algumas formas de câncer hereditário.",
+      categoria: "Biologia",
+      emoji: "🧬",
+      data: "2025-06-10",
+      autor: "Equipe CNT.edu",
+      link: "https://www.nature.com"
+    },
+    {
+      id: 2,
+      titulo: "Inteligência Artificial prevê estrutura de proteínas com 99% de precisão",
+      resumo: "AlphaFold 3 da DeepMind resolve um dos maiores problemas da biologia molecular, impactando o desenvolvimento de novos medicamentos.",
+      conteudo: "A DeepMind lançou a terceira versão do AlphaFold, sistema de IA capaz de prever a estrutura tridimensional de proteínas com precisão de 99%. Essa conquista é considerada uma das maiores da biologia moderna.\n\nO impacto no desenvolvimento de medicamentos é imediato: empresas farmacêuticas já utilizam o sistema para identificar candidatos a novos remédios.",
+      categoria: "Tecnologia",
+      emoji: "🤖",
+      data: "2025-05-28",
+      autor: "Equipe CNT.edu",
+      link: "https://alphafold.ebi.ac.uk"
+    },
+    {
+      id: 3,
+      titulo: "Brasil lança programa nacional de energia solar para escolas públicas",
+      resumo: "Governo federal anuncia instalação de painéis fotovoltaicos em 10 mil escolas até 2026.",
+      conteudo: "O Ministério da Educação lançou o Programa Nacional de Energia Solar para Educação Pública. Além da economia, o programa tem componente pedagógico: as instalações serão usadas como laboratórios de energias renováveis.",
+      categoria: "Educação",
+      emoji: "☀️",
+      data: "2025-05-15",
+      autor: "Equipe CNT.edu",
+      link: ""
+    },
+    {
+      id: 4,
+      titulo: "Descoberta de novo antibiótico combate bactérias resistentes",
+      resumo: "Composto extraído de solo da Antártida mostra eficácia contra superbactérias.",
+      conteudo: "Cientistas da UFRJ isolaram um novo composto antimicrobiano em amostras de solo da Antártida. O composto mostrou eficácia contra várias cepas de bactérias resistentes a antibióticos convencionais.",
+      categoria: "Pesquisa",
+      emoji: "🦠",
+      data: "2025-04-20",
+      autor: "Equipe CNT.edu",
+      link: ""
+    }
+  ];
+}
+
+// ============================================================
+// EMOJIS
+// ============================================================
+const EMOJIS = ['🔬','🧬','⚗️','🔭','🌿','🦠','🧪','💊','🧫','🧲','⚡','☀️','🌊','🌍','🦴','🐋','🐍','🍄','🌡️','💻','🤖','🛸','🚀','🛰️','🔋','📡','🌐','🧠','❤️','🫀'];
+
+let emojiSelecionado = '🔬';
+
+function renderEmojiPicker() {
+  const container = document.getElementById('emojiPicker');
+  container.innerHTML = EMOJIS.map(e =>
+    `<button type="button" class="emoji-btn${e === emojiSelecionado ? ' selected' : ''}" onclick="selecionarEmoji('${e}')">${e}</button>`
+  ).join('');
+}
+
+function selecionarEmoji(e) {
+  emojiSelecionado = e;
+  document.getElementById('fEmoji').value = e;
+  document.querySelectorAll('.emoji-btn').forEach(b => b.classList.toggle('selected', b.textContent === e));
+}
+
+// ============================================================
+// RENDERIZAÇÃO DA LISTA
+// ============================================================
+const CAT_CLASSES = {
+  'Biologia': 'cat-ciencia', 'Química': 'cat-pesquisa', 'Física': 'cat-tecnologia',
+  'Tecnologia': 'cat-tecnologia', 'Educação': 'cat-educacao', 'Pesquisa': 'cat-pesquisa',
+  'Ciência': 'cat-ciencia', 'Meio Ambiente': 'cat-educacao'
+};
+
+function fmtData(str) {
+  if (!str) return '';
+  const d = new Date(str + 'T12:00:00');
+  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
+}
+
+function renderLista() {
+  const news = getNews();
+  const list = document.getElementById('newsList');
+  document.getElementById('badgeCount').textContent = news.length;
+
+  if (!news.length) {
+    list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted)">Nenhuma notícia ativa. Adicione a primeira abaixo! ⬇️</div>';
+    return;
+  }
+
+  list.innerHTML = '';
+  news.forEach((n, idx) => {
+    const item = document.createElement('div');
+    item.className = `news-item${idx === 0 ? ' destaque' : ''}`;
+    item.innerHTML = `
+      <div class="news-item-emoji">${n.emoji || '📰'}</div>
+      <div class="news-item-body">
+        <div class="news-item-meta">
+          <span class="news-item-cat ${CAT_CLASSES[n.categoria] || 'cat-ciencia'}">${n.categoria}</span>
+          <span class="news-item-date">${fmtData(n.data)}</span>
+          ${idx === 0 ? '<span class="news-destaque-tag">⭐ Destaque da capa</span>' : ''}
+        </div>
+        <div class="news-item-title">${n.titulo}</div>
+        <div class="news-item-excerpt">${n.resumo}</div>
+      </div>
+      <div class="news-item-actions">
+        ${idx > 0 ? `<button class="btn-sm" onclick="moverCima(${idx})" title="Mover para cima">↑</button>` : ''}
+        ${idx < news.length - 1 ? `<button class="btn-sm" onclick="moverBaixo(${idx})" title="Mover para baixo">↓</button>` : ''}
+        <button class="btn-sm" onclick="editarNoticia(${idx})">✏️ Editar</button>
+        <button class="btn-sm danger" onclick="arquivarNoticia(${idx})">🗃️ Arquivar</button>
+      </div>
+    `;
+    list.appendChild(item);
+  });
+}
+
+function renderArquivo() {
+  const arquivo = getArquivo();
+  const count = document.getElementById('arquivoCount');
+  count.textContent = arquivo.length ? `(${arquivo.length})` : '(vazio)';
+  const container = document.getElementById('arquivoItems');
+  if (!arquivo.length) {
+    container.innerHTML = '<div style="text-align:center;padding:24px;color:var(--muted)">Nenhuma notícia arquivada ainda.</div>';
+    return;
+  }
+  container.innerHTML = '';
+  arquivo.forEach((n, idx) => {
+    const item = document.createElement('div');
+    item.className = 'arquivo-item';
+    item.innerHTML = `
+      <span style="font-size:28px">${n.emoji || '📰'}</span>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${n.titulo}</div>
+        <div style="font-size:12px;color:var(--muted)">${n.categoria} · ${fmtData(n.data)} · Arquivada em: ${fmtData(n.arquivadaEm)}</div>
+      </div>
+      <button class="btn-sm" onclick="restaurarNoticia(${idx})">↩️ Restaurar</button>
+    `;
+    container.appendChild(item);
+  });
+}
+
+// ============================================================
+// AÇÕES
+// ============================================================
+function salvarNoticia() {
+  const titulo = document.getElementById('fTitulo').value.trim();
+  const resumo = document.getElementById('fResumo').value.trim();
+  const conteudo = document.getElementById('fConteudo').value.trim();
+  const categoria = document.getElementById('fCategoria').value;
+  const data = document.getElementById('fData').value;
+  const autor = document.getElementById('fAutor').value.trim() || 'Equipe CNT.edu';
+  const link = document.getElementById('fLink').value.trim();
+  const emoji = document.getElementById('fEmoji').value || '🔬';
+  const imagem = document.getElementById('fImagemData').value || '';
+  const editId = document.getElementById('editId').value;
+
+  if (!titulo || !resumo || !data) {
+    mostrarToast('⚠️ Preencha título, resumo e data', 'error'); return;
+  }
+
+  const news = getNews();
+  const noticia = { titulo, resumo, conteudo, categoria, data, autor, link, emoji, imagem };
+
+  if (editId) {
+    const idx = news.findIndex(n => String(n.id) === editId);
+    if (idx !== -1) {
+      noticia.id = news[idx].id;
+      news[idx] = noticia;
+      mostrarToast('✅ Notícia atualizada!', 'success');
+    }
+  } else {
+    noticia.id = Date.now();
+    news.unshift(noticia);
+    mostrarToast('🎉 Notícia publicada como destaque!', 'success');
+  }
+
+  saveNews(news);
+  limparForm();
+  renderLista();
+  renderArquivo();
+}
+
+function editarNoticia(idx) {
+  const news = getNews();
+  const n = news[idx];
+  document.getElementById('editId').value = n.id;
+  document.getElementById('fTitulo').value = n.titulo;
+  document.getElementById('fResumo').value = n.resumo;
+  document.getElementById('fConteudo').value = n.conteudo || '';
+  document.getElementById('fCategoria').value = n.categoria;
+  document.getElementById('fData').value = n.data;
+  document.getElementById('fAutor').value = n.autor || '';
+  document.getElementById('fLink').value = n.link || '';
+  emojiSelecionado = n.emoji || '🔬';
+  document.getElementById('fEmoji').value = emojiSelecionado;
+  // Restaurar imagem
+  if (n.imagem) {
+    document.getElementById('fImagemData').value = n.imagem;
+    document.getElementById('imgPreview').src = n.imagem;
+    document.getElementById('imgPreviewWrap').style.display = 'block';
+    document.getElementById('imgUploadArea').style.display = 'none';
+  } else {
+    removerImagem();
+  }
+  renderEmojiPicker();
+  document.getElementById('formTitleText').textContent = '✏️ Editando Notícia';
+  document.getElementById('formEmoji').textContent = '✏️';
+  document.getElementById('btnSalvarText').textContent = '💾 Salvar Alterações';
+  document.getElementById('newsForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function cancelarEdicao() {
+  limparForm();
+  mostrarToast('Edição cancelada.', '');
+}
+
+function limparForm() {
+  document.getElementById('editId').value = '';
+  document.getElementById('fTitulo').value = '';
+  document.getElementById('fResumo').value = '';
+  document.getElementById('fConteudo').value = '';
+  document.getElementById('fData').value = new Date().toISOString().split('T')[0];
+  document.getElementById('fAutor').value = '';
+  document.getElementById('fLink').value = '';
+  removerImagem();
+  emojiSelecionado = '🔬';
+  document.getElementById('fEmoji').value = '🔬';
+  renderEmojiPicker();
+  document.getElementById('formTitleText').textContent = 'Adicionar Nova Notícia';
+  document.getElementById('formEmoji').textContent = '✍️';
+  document.getElementById('btnSalvarText').textContent = '✅ Publicar Notícia';
+}
+
+// ============================================================
+// UPLOAD DE IMAGEM
+// ============================================================
+function carregarImagem(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 2 * 1024 * 1024) {
+    mostrarToast('⚠️ Imagem muito grande! Máximo 2MB.', 'error');
+    input.value = '';
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    // Redimensionar via canvas para economizar espaço no localStorage
+    const img = new Image();
+    img.onload = function() {
+      const canvas = document.createElement('canvas');
+      const MAX_W = 1200, MAX_H = 600;
+      let w = img.width, h = img.height;
+      if (w > MAX_W) { h = Math.round(h * MAX_W / w); w = MAX_W; }
+      if (h > MAX_H) { w = Math.round(w * MAX_H / h); h = MAX_H; }
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
+      document.getElementById('fImagemData').value = dataUrl;
+      document.getElementById('imgPreview').src = dataUrl;
+      document.getElementById('imgPreviewWrap').style.display = 'block';
+      document.getElementById('imgUploadArea').style.display = 'none';
+      mostrarToast('🖼️ Imagem carregada!', 'success');
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function removerImagem() {
+  document.getElementById('fImagemData').value = '';
+  document.getElementById('imgPreview').src = '';
+  document.getElementById('imgPreviewWrap').style.display = 'none';
+  document.getElementById('imgUploadArea').style.display = 'block';
+  const input = document.getElementById('fImagem');
+  if (input) input.value = '';
+}
+
+
+function arquivarNoticia(idx) {
+  if (!confirm('Arquivar esta notícia? Ela ficará salva no histórico e poderá ser restaurada.')) return;
+  const news = getNews();
+  const arquivo = getArquivo();
+  const n = news.splice(idx, 1)[0];
+  n.arquivadaEm = new Date().toISOString().split('T')[0];
+  arquivo.unshift(n);
+  saveNews(news);
+  saveArquivo(arquivo);
+  renderLista();
+  renderArquivo();
+  mostrarToast('🗃️ Notícia arquivada. Disponível no histórico.', 'success');
+}
+
+function restaurarNoticia(idx) {
+  const arquivo = getArquivo();
+  const news = getNews();
+  const n = arquivo.splice(idx, 1)[0];
+  delete n.arquivadaEm;
+  news.push(n);
+  saveNews(news);
+  saveArquivo(arquivo);
+  renderLista();
+  renderArquivo();
+  mostrarToast('↩️ Notícia restaurada!', 'success');
+}
+
+function moverCima(idx) {
+  const news = getNews();
+  if (idx <= 0) return;
+  [news[idx-1], news[idx]] = [news[idx], news[idx-1]];
+  saveNews(news);
+  renderLista();
+}
+
+function moverBaixo(idx) {
+  const news = getNews();
+  if (idx >= news.length - 1) return;
+  [news[idx], news[idx+1]] = [news[idx+1], news[idx]];
+  saveNews(news);
+  renderLista();
+}
+
+function scrollToForm() {
+  limparForm();
+  document.getElementById('newsForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function toggleArquivo() {
+  const list = document.getElementById('arquivoList');
+  const arrow = document.getElementById('arquivoArrow');
+  const open = list.style.display !== 'none';
+  list.style.display = open ? 'none' : 'block';
+  arrow.textContent = open ? '▼' : '▲';
+}
+
+// ============================================================
+// TOAST
+// ============================================================
+function mostrarToast(msg, tipo) {
+  const t = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  t.className = `toast visible ${tipo}`;
+  setTimeout(() => t.classList.remove('visible'), 3000);
+}
+
+// ============================================================
+// INIT
+// ============================================================
+function initAdmin() {
+  document.getElementById('fData').value = new Date().toISOString().split('T')[0];
+  renderEmojiPicker();
+  renderLista();
+  renderArquivo();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Login UX
+  document.getElementById('loginUser').focus();
+  document.getElementById('loginUser').addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('loginPass').focus();
+  });
+
+  // Drag & drop na área de imagem
+  const area = document.getElementById('imgUploadArea');
+  if (area) {
+    area.addEventListener('dragover', e => { e.preventDefault(); area.classList.add('drag-over'); });
+    area.addEventListener('dragleave', () => area.classList.remove('drag-over'));
+    area.addEventListener('drop', e => {
+      e.preventDefault();
+      area.classList.remove('drag-over');
+      const file = e.dataTransfer.files[0];
+      if (file && file.type.startsWith('image/')) {
+        carregarImagem({ files: [file] });
+      }
+    });
+  }
+});
+</script>
+</body>
+</html>
