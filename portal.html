@@ -621,6 +621,47 @@ body {
   color: var(--muted);
 }
 
+.attached-materials-head {
+  margin-top: 34px;
+  margin-bottom: 14px;
+}
+.attached-materials-head h3 {
+  font-family: 'Sora', sans-serif;
+  font-size: 20px;
+}
+.attached-materials-head p {
+  color: var(--muted);
+  font-size: 13px;
+  margin-top: 4px;
+}
+.attached-materials-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit,minmax(240px,1fr));
+  gap: 14px;
+}
+.material-download-btn {
+  margin-top: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: rgba(0,71,182,0.2);
+  border: 1px solid rgba(110,164,255,0.35);
+  color: #dbe9ff;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 12px;
+}
+.material-download-btn:hover { background: rgba(0,71,182,0.35); }
+.material-empty {
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+  padding: 18px;
+  color: var(--muted);
+  text-align: center;
+}
+
 /* ===== FEATURES ===== */
 .features-grid {
   display: grid;
@@ -970,6 +1011,14 @@ body {
         <span class="material-tag">🗺️ Revista</span>
       </a>
     </div>
+
+    <div class="attached-materials-head">
+      <div>
+        <h3>📎 Materiais anexados pela coordenação</h3>
+        <p>Baixe listas de atividades e apresentações disponibilizadas pelo administrador.</p>
+      </div>
+    </div>
+    <div class="attached-materials-grid" id="materiaisAnexadosList"></div>
   </div>
 </div>
 
@@ -1162,6 +1211,56 @@ function fmtData(str) {
 let noticiasData = [];
 let noticiaAtual = null;
 
+
+function getMateriaisAnexados() {
+  try {
+    const raw = localStorage.getItem('cnt_materiais');
+    return raw ? JSON.parse(raw) : [];
+  } catch { return []; }
+}
+
+function getMaterialAccent(tipo = '') {
+  const t = tipo.toLowerCase();
+  if (t.includes('apresent')) return '#7c3aed';
+  if (t.includes('lista')) return '#F2B817';
+  return '#00c471';
+}
+
+function getMaterialEmoji(tipo = '', nome = '') {
+  const txt = `${tipo} ${nome}`.toLowerCase();
+  if (txt.includes('ppt')) return '📊';
+  if (txt.includes('lista')) return '📝';
+  if (txt.includes('pdf')) return '📄';
+  return '📎';
+}
+
+function renderMateriaisAnexados() {
+  const container = document.getElementById('materiaisAnexadosList');
+  if (!container) return;
+  const materiais = getMateriaisAnexados();
+
+  if (!materiais.length) {
+    container.innerHTML = '<div class="material-empty">Nenhum material anexado no momento.</div>';
+    return;
+  }
+
+  container.innerHTML = '';
+  materiais.forEach(m => {
+    const nome = m.fileName || 'arquivo';
+    const item = document.createElement('article');
+    item.className = 'material-card';
+    item.style.setProperty('--color', getMaterialAccent(m.tipo));
+    item.innerHTML = `
+      <span class="material-icon">${getMaterialEmoji(m.tipo, nome)}</span>
+      <div class="material-title">${m.titulo}</div>
+      <div class="material-desc">${m.descricao || 'Material para apoio em sala e estudo em casa.'}</div>
+      <span class="material-tag">${m.tipo || 'Material'}</span>
+      <a class="material-download-btn" href="${m.dataUrl}" download="${nome}">⬇️ Baixar ${nome}</a>
+    `;
+    container.appendChild(item);
+  });
+}
+
 function renderNoticias() {
   noticiasData = getNews();
   const destaque = noticiasData[0];
@@ -1291,6 +1390,7 @@ window.addEventListener('scroll', () => {
 document.addEventListener('DOMContentLoaded', () => {
   criarParticulas();
   renderNoticias();
+  renderMateriaisAnexados();
 
   // Fechar modal ao pressionar ESC
   document.addEventListener('keydown', e => {

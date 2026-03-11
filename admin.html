@@ -323,6 +323,62 @@ body { font-family: 'Space Grotesk', sans-serif; background: var(--bg); color: v
 }
 .arquivo-item:hover { opacity: 1; }
 
+
+/* ===== MATERIAIS ANEXADOS ===== */
+.materials-admin {
+  margin-top: 32px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+}
+.materials-admin h3 {
+  font-family: 'Sora', sans-serif;
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+.materials-admin p {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 18px;
+}
+.materials-grid-admin {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.materials-grid-admin .full { grid-column: 1 / -1; }
+.material-file-list {
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.material-file-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+}
+.material-file-meta {
+  min-width: 0;
+}
+.material-file-name {
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.material-file-sub {
+  font-size: 12px;
+  color: var(--muted);
+}
+
 /* ===== TOAST ===== */
 .toast {
   position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
@@ -354,6 +410,8 @@ body { font-family: 'Space Grotesk', sans-serif; background: var(--bg); color: v
   .topbar { padding: 0 16px; }
   .news-item { flex-direction: column; }
   .news-item-title { white-space: normal; }
+  .materials-grid-admin { grid-template-columns: 1fr; }
+  .material-file-item { flex-direction: column; align-items: flex-start; }
 }
 </style>
 </head>
@@ -503,6 +561,38 @@ body { font-family: 'Space Grotesk', sans-serif; background: var(--bg); color: v
       </div>
     </div>
 
+    <!-- ===== MATERIAIS ANEXADOS ===== -->
+    <div class="materials-admin">
+      <h3>📎 Materiais para alunos</h3>
+      <p>Anexe listas de atividades e apresentações (PPT/PPTX) para aparecer no portal.</p>
+      <div class="materials-grid-admin">
+        <div class="form-group">
+          <label>Título do material *</label>
+          <input type="text" id="mTitulo" placeholder="Ex: Lista de Exercícios — Ligações Químicas">
+        </div>
+        <div class="form-group">
+          <label>Tipo</label>
+          <select id="mTipo">
+            <option value="Lista de atividades">Lista de atividades</option>
+            <option value="Apresentação">Apresentação</option>
+            <option value="Material de apoio">Material de apoio</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label>Descrição (opcional)</label>
+          <input type="text" id="mDescricao" placeholder="Ex: Revisão para 2º ano · Entrega na próxima aula">
+        </div>
+        <div class="form-group full">
+          <label>Arquivo *</label>
+          <input type="file" id="mArquivo" accept=".pdf,.doc,.docx,.ppt,.pptx,application/pdf,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation">
+        </div>
+      </div>
+      <div class="form-actions" style="margin-top:14px;padding-top:14px">
+        <button class="btn-success" onclick="salvarMaterial()">📎 Anexar material</button>
+      </div>
+      <div id="materialsList" class="material-file-list"></div>
+    </div>
+
     <!-- ===== ARQUIVO ===== -->
     <div class="arquivo-section">
       <button class="arquivo-toggle" onclick="toggleArquivo()">
@@ -528,6 +618,8 @@ body { font-family: 'Space Grotesk', sans-serif; background: var(--bg); color: v
 // AUTENTICAÇÃO
 // ============================================================
 const ADMIN_KEY = 'cnt_admin_pass';
+const MATERIAIS_KEY = 'cnt_materiais';
+const MATERIAIS_MAX_MB = 6;
 let adminLogado = false;
 
 function getAdminPass() {
@@ -587,6 +679,33 @@ function saveNews(list) {
 function saveArquivo(list) {
   localStorage.setItem('cnt_news_arquivo', JSON.stringify(list));
 }
+
+function getMateriais() {
+  try {
+    const raw = localStorage.getItem(MATERIAIS_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch { return []; }
+}
+
+function saveMateriais(list) {
+  localStorage.setItem(MATERIAIS_KEY, JSON.stringify(list));
+}
+
+function formatBytes(bytes) {
+  if (!bytes) return '0 KB';
+  const kb = bytes / 1024;
+  if (kb < 1024) return `${kb.toFixed(1)} KB`;
+  return `${(kb / 1024).toFixed(2)} MB`;
+}
+
+function materialIcon(tipo, nome='') {
+  const lower = `${tipo} ${nome}`.toLowerCase();
+  if (lower.includes('ppt')) return '📊';
+  if (lower.includes('lista')) return '📝';
+  if (lower.includes('pdf')) return '📄';
+  return '📎';
+}
+
 
 function getDefaultNews() {
   return [
@@ -772,6 +891,7 @@ function salvarNoticia() {
   limparForm();
   renderLista();
   renderArquivo();
+  renderMateriais();
 }
 
 function editarNoticia(idx) {
@@ -881,6 +1001,7 @@ function arquivarNoticia(idx) {
   saveArquivo(arquivo);
   renderLista();
   renderArquivo();
+  renderMateriais();
   mostrarToast('🗃️ Notícia arquivada. Disponível no histórico.', 'success');
 }
 
@@ -894,6 +1015,7 @@ function restaurarNoticia(idx) {
   saveArquivo(arquivo);
   renderLista();
   renderArquivo();
+  renderMateriais();
   mostrarToast('↩️ Notícia restaurada!', 'success');
 }
 
@@ -926,6 +1048,81 @@ function toggleArquivo() {
   arrow.textContent = open ? '▼' : '▲';
 }
 
+function renderMateriais() {
+  const list = getMateriais();
+  const container = document.getElementById('materialsList');
+  if (!container) return;
+
+  if (!list.length) {
+    container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Nenhum material anexado ainda.</div>';
+    return;
+  }
+
+  container.innerHTML = '';
+  list.forEach((m, idx) => {
+    const item = document.createElement('div');
+    item.className = 'material-file-item';
+    item.innerHTML = `
+      <div class="material-file-meta">
+        <div class="material-file-name">${materialIcon(m.tipo, m.fileName)} ${m.titulo}</div>
+        <div class="material-file-sub">${m.tipo} · ${m.fileName} · ${formatBytes(m.size)} · ${fmtData(m.criadoEm)}</div>
+      </div>
+      <button class="btn-sm danger" onclick="removerMaterial(${idx})">🗑️ Remover</button>
+    `;
+    container.appendChild(item);
+  });
+}
+
+function salvarMaterial() {
+  const titulo = document.getElementById('mTitulo').value.trim();
+  const tipo = document.getElementById('mTipo').value;
+  const descricao = document.getElementById('mDescricao').value.trim();
+  const arquivoInput = document.getElementById('mArquivo');
+  const file = arquivoInput.files[0];
+
+  if (!titulo || !file) {
+    mostrarToast('⚠️ Informe o título e selecione um arquivo.', 'error');
+    return;
+  }
+
+  if (file.size > MATERIAIS_MAX_MB * 1024 * 1024) {
+    mostrarToast(`⚠️ Arquivo muito grande. Máximo ${MATERIAIS_MAX_MB}MB.`, 'error');
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const materiais = getMateriais();
+    materiais.unshift({
+      id: Date.now(),
+      titulo,
+      tipo,
+      descricao,
+      fileName: file.name,
+      mimeType: file.type || 'application/octet-stream',
+      size: file.size,
+      dataUrl: e.target.result,
+      criadoEm: new Date().toISOString().split('T')[0]
+    });
+    saveMateriais(materiais);
+    document.getElementById('mTitulo').value = '';
+    document.getElementById('mDescricao').value = '';
+    arquivoInput.value = '';
+    renderMateriais();
+    mostrarToast('✅ Material anexado com sucesso!', 'success');
+  };
+  reader.readAsDataURL(file);
+}
+
+function removerMaterial(idx) {
+  if (!confirm('Deseja remover este material anexado?')) return;
+  const materiais = getMateriais();
+  materiais.splice(idx, 1);
+  saveMateriais(materiais);
+  renderMateriais();
+  mostrarToast('🗑️ Material removido.', '');
+}
+
 // ============================================================
 // TOAST
 // ============================================================
@@ -944,6 +1141,7 @@ function initAdmin() {
   renderEmojiPicker();
   renderLista();
   renderArquivo();
+  renderMateriais();
 }
 
 document.addEventListener('DOMContentLoaded', () => {
